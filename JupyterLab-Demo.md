@@ -10,7 +10,7 @@ Dev team plans for JupyterLab to eventually replace Jupyter Notebook
   * Images/GIFs
   * PDFs
   * Markdown
-* Live Markdown editing is pretty cool
+* Live Markdown editing
 * Customizable keyboard shortcuts: use vim, emacs, Sublime, or your own
 * Code console to run code interactively
 * Open text file to code console
@@ -41,6 +41,12 @@ Extensions are npm packages, many built or in development on GitHub. Lots of roo
 
 [GitHub](https://github.com/jupyterlab/jupyterlab-github)
 * Browse repos and open files/notebooks
+
+[Code formatter](https://github.com/ryantam626/jupyterlab_code_formatter)
+* Black
+* YAPF
+* Autopep8
+* Isort
 
 [Google Drive](https://github.com/jupyterlab/jupyterlab-google-drive)
 * Real-time collaborative editing
