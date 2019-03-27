@@ -30,15 +30,6 @@ Extensions customize/enhance JupyterLab
 
 Extensions are npm packages, many built or in development on GitHub. Lots of room for involvement!
 
-#### Installing extensions
-
-Note: Need [Node.js](https://nodejs.org/en/) to install extensions
-* `conda install -c conda-forge nodejs`
-
-**Installing table of contents extension**
-
-`jupyter labextension install @jupyterlab/toc`
-
 #### Some cool extensions
 
 [Live LaTeX editing](https://github.com/jupyterlab/jupyterlab-latex)
@@ -56,3 +47,12 @@ Note: Need [Node.js](https://nodejs.org/en/) to install extensions
 [JupyterHub](https://jupyterlab.readthedocs.io/en/stable/user/jupyterhub.html)
 
 [More useful extensions](https://github.com/topics/jupyterlab-extension)
+
+#### Installing extensions
+
+Note: Need [Node.js](https://nodejs.org/en/) to install extensions
+* `conda install -c conda-forge nodejs`
+
+**Installing table of contents extension**
+
+`jupyter labextension install @jupyterlab/toc`
