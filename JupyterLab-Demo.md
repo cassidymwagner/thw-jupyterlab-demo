@@ -14,6 +14,6 @@
 * [Google Drive integration](https://github.com/jupyterlab/jupyterlab-google-drive)
     * Real-time collaborative editing
 * [Git integration](https://github.com/jupyterlab/jupyterlab-git)
-    * 
+    * Easily see status of git files and stage/track/commit
 * [GitHub integration](https://github.com/jupyterlab/jupyterlab-github)
     * Browse repos and open files/notebooks
