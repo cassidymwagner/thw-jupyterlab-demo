@@ -10,7 +10,7 @@ Dev team plans for JupyterLab to eventually replace Jupyter Notebook
   * Images/GIFs
   * PDFs
   * Markdown
-* Live Markdown editing
+* Live Markdown editing is pretty cool
 * Customizable keyboard shortcuts: use vim, emacs, Sublime, or your own
 * Code console to run code interactively
 * Open text file to code console
