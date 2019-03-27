@@ -18,3 +18,4 @@
     * **Note**: Currently does not allow you to push changes to GitHub unless you have connected an SSH key to your account.
 * [GitHub integration](https://github.com/jupyterlab/jupyterlab-github)
     * Browse repos and open files/notebooks
+* [More useful extensions](https://github.com/topics/jupyterlab-extension)
