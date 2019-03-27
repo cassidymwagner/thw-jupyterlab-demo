@@ -1,3 +1,16 @@
+
+# Created by https://www.gitignore.io/api/latex,jupyternotebook
+# Edit at https://www.gitignore.io/?templates=latex,jupyternotebook
+
+### JupyterNotebook ###
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Remove previous ipynb_checkpoints
+#   git rm -r .ipynb_checkpoints/
+#
+
+### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -260,4 +273,10 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
+
+### LaTeX Patch ###
+# glossaries
+*.glstex
+
+# End of https://www.gitignore.io/api/latex,jupyternotebook
 
