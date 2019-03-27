@@ -16,6 +16,7 @@ Dev team plans for JupyterLab to eventually replace Jupyter Notebook
 * Open text file to code console
     * Edit python script and test bits of it interactively in a console
 * Terminal
+    * Same shell you have on your own machine
     * Can run anything in system shell with terminal, like `vim`, `top`, etc.
 * Notebooks are the same, but with some more neat features
 
