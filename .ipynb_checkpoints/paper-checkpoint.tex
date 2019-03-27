@@ -1,0 +1,442 @@
+\input{top-apj}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{courier}
+
+% Headers for odd and even pages, respectively:
+\shorttitle{Wagner}
+% If more than two authors, use {\em et al.}
+\shortauthors{Wagner}
+
+
+\begin{document}
+
+\title{Constraining the star formation contribution to \\ 
+       the infrared luminosity in quasars}
+
+
+%% AUTHOR/INSTITUTIONS FOR AASTEX6.1:
+\author{Cassidy Wagner}
+
+\affil{Homer L. Dodge Department of Physics and Astronomy, University of Oklahoma, 440 West Brooks Street, 
+       Norman, OK 73019, USA} 
+\begin{abstract}
+
+All quasars are fundamentally similar, powered by accretion of matter onto a supermassive black hole. A substantial fraction 
+of quasars exhibit broad absorption lines in their spectra, indicative of high-velocity wind outflow. These winds have been 
+theorized to be responsible for feedback in galaxy evolution. \cite{farrah2012} claim an anticorrelation between 
+outflow strength and star formation contribution, concluding that windy outflows quench star formation.
+
+Although \cite{farrah2012} supports the claim that quasar winds play a role in feedback, we find that their methods are limited 
+in some areas. The outflow strength is insufficiently quantified through the absorption strength parameter which is 
+only loosely related to the outflow strength. We also believe some of their models may be outdated and inaccurate. Several 
+fits show an unobserved level of polycyclic aromatic hydrocarbons, indicating a flawed starburst model. Additionally, shorter 
+wavelength regions than those used in the \cite{farrah2012} analysis further constrain the reddening component.
+
+We use \texttt{emcee} (\citealp{foremanmackey2013}), a Python implementation of the Affine Invariant MCMC Ensemble sampler, to fit the 
+spectral energy distributions of the \cite{farrah2012} objects with alternative component models. We focus on constraining 
+the starburst and reddening components of the objects with starburst templates extracted from the Bayesian tool, AGNfitter 
+(\citealp{rivera2016}), along with 
+templates for the host galaxy (\citealp{fioc1997}) and quasar (\citealp{lyu2017feb}) to fully fit the objects. As our 
+reddening template of choice goes to shorter wavelengths, 
+we obtain additional photometric data at this region to aid in the reddening constraint.  
+
+\end{abstract}
+
+\section{INTRODUCTION}
+\label{introduction}
+
+It has been observed that galaxies and their central supermassive black holes grow in a correlated fashion, implying that 
+as the galaxy itself grows, so too does the black hole. However, the black hole makes up an incredibly small fraction of its host galaxy, 
+pushing research toward investigating this relationship. To understand quasar and galaxy evolution, the notion of feedback has come into 
+the forefront of quasar research.
+
+A promising explanation for quasar feedback are wind outflows, high-velocity outflows of gas from the central engine. It has been 
+theorized that these winds may go into the galaxy and disrupt regions of dense star formation, implying the black hole plays a role 
+in influencing the evolution of the host galaxy. \cite{farrah2012} claim to have found evidence that there exists an anticorrelation 
+between the strength 
+of these wind outflows and the star formation contribution in the infrared (IR) luminosity. 
+
+The outflows are identified by broad absorption lines in quasar spectra, while the star formation contribution can be seen in the 
+spectral energy distribution (SED) of the quasar. \cite{farrah2012} focused on constraining the outflow strength and 
+star formation contribution to claim that when the outflow strength was highest for an object, the star formation luminosity would be lower. 
+The scope of this project is to contribute to a similar analysis using different methods. 
+
+In this paper we use \texttt{emcee} to fit quasar SEDs for the purpose of constraining reddening and the starburst component. We begin by 
+discussing our sample selection and justifying our choice of object to focus on for this paper. We then provide the components 
+used to construct the SED fits and elaborate on how each component was developed. We give a brief introduction to MCMC and \texttt{emcee} before 
+presenting our results and commenting on the successes and challenges throughout this project. 
+
+\section{Data}
+\label{sec:data}
+
+\subsection{Sample selection}
+\label{sec:sample}
+
+Our sample has been extracted from \cite{farrah2012} who chose the objects based explicitly on their rest-frame UV spectral 
+features and if the objects had optical spectra. Their sample contains 31 objects such that the sample 
+is a random subset of the FeLoBAL quasar population between $0.8 < z < 1.8$ with no selection on IR luminosity (\citealp{farrah2012}). 
+Additionally, the spectrum of each object contains the Mg II broad absorption line. 
+
+\cite{farrah2012} uses Spitzer MIPS photometry, WISE photometry, and 2MASS photometry. We use their magnitudes for MIPS, but retrieve the 
+WISE photometry from \cite{wright2010}. We have also reduced the \cite{farrah2012}  sample of 31 down to 25 as some objects 
+were misclassified as BAL quasars. 
+
+\subsection{Additional data collection and preparation}
+\label{sec:sample}
+
+Many objects in the \cite{farrah2012} sample are faint at shorter wavelengths, resulting in larger errors. The JHK photometry 
+is all from 2MASS, a shallow survey that picks up the brightest objects. 2MASS can achieve SNR=10 for objects of magnitude 15.8,15.1, 
+and 14.3 for the J,H, and K bands, respectively (\citealp{skrutskie2006}). Our objects are fainter than this, therefore 
+an adequate SNR for our purposes is not 
+achieved with 2MASS. Thus we replace the 2MASS photometry with UKIDSS photometry, a survey with a depth of three magnitudes deeper than 
+2MASS, to more effectively constrain the fit (\citealp{warren2007}). 
+The \cite{farrah2012} analysis does not include shorter wavelength photometry such as SDSS \textit{ugriz}, therefore we included 
+this region to better constrain the reddening and quasar components. 
+
+We have obtained additional photometry from observations with NICFPS on APO's 2.5 meter as well as with TIFKAM on MDM's 2.4 meter, 
+not yet included in this paper and awaiting reduction. We obtained 
+H-band photometry for some objects from the MDM observations as well as H-band and K-band photometry with APO. Since these 
+data are not included in this paper, our sample of 25 is reduced to 14 to ensure that our JHK photometry is all from the more sensitive UKIDSS 
+catalog.
+
+\section{SED Components and Parameters}
+\label{sec:models}
+
+We use four parameters to constrain the SED fits for these objects: the amplitudes of the quasar component, made up of the radiation from 
+the accretion disk and the torus, the star formation component, and the host galaxy component, as well as a parameter for the 
+Small Magellanic Cloud (SMC) reddening law (\citealp{prevot1984}). The SED model components are shown in Fig.~\ref{fig:comps} 
+and all parameters are discussed in detail below. 
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figs/all_comps_reg.png}
+  \caption{Three components used to construct the SED fits. The blue line corresponds to  
+           the host galaxy component from \cite{fioc1997}. The orange line is the quasar component from 
+           \cite{lyu2017feb}, made up of the radiation from both the accretion disk and the torus. 
+           The green line is a single starburst component, one of the templates in the 
+           \cite{dalehelou2002} library.}
+           \label{fig:comps}
+\end{figure}
+
+\subsection{Quasar component}
+\label{sec:bbb}
+As matter spirals into the black hole, a fraction of its rest energy can be released and converted into heat and radiation which 
+presents makes up the shorter wavelength portion of the entire quasar component. As the radiation from the accretion disk comes 
+into contact with the torus, the dust in the torus absorbs and reprocesses the radiation, emitting in the infrared.
+
+The model for the quasar, shown in Fig.~\ref{fig:comps}, comes from \cite{lyu2017feb} who construct three separate models for the quasar based on 
+dust deficiencies. They begin by using the \cite{elvis1994} template to fit the SEDs of 87 Palomer-Green quasars, a quasar 
+SED template based on a sample of optically-selected and radio-selected quasars with strong X-ray emission that are optically blue.
+However, \cite{lyu2017feb} finds that ~40\% of the PG SEDs are not fit well with the Elvis template. 
+They separate the unfit objects into two groups: 
+hot-dust-deficient (HDD) and warm-dust-deficient (WDD), which make up ~15\%-23\% and ~14\%-17\% of the sample, respectively. 
+Finally they construct composite templates from the two 
+groups and provide models for WDD and HDD quasars. The normal Elvis, WDD, and HDD templates are shown in Fig.~\ref{fig:lyu}.
+  
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figs/lyu_temps.png}
+  \caption{Three quasar templates constructed in \cite{lyu2017feb} The blue line is the normal template from \cite{elvis1994}, 
+           without dust deficiencies taken into consideration. The orange line is the WDD model while the green line is the 
+           HDD model. All models are normalized at 1.25$\mu$m.
+         }
+         \label{fig:lyu}
+\end{figure}
+  
+\subsection{Star formation component}
+\label{sec:star}
+
+As young stars evolve, they emit UV-visible light, which is then absorbed by dust left over from previous 
+generations of star formation and reradiated in the infrared. 
+
+A total of 169 starburst templates were extracted from \cite{rivera2016} who constructed them from separate libraries 
+in \cite{charyelbaz2001} and \cite{dalehelou2002}. The starburst template used in this paper comes from the 
+\cite{dalehelou2002} library, although we discuss later how a range of templates should be used to explore the fitting process.
+\cite{charyelbaz2001} constructed 105 starburst templates based on four SEDs of prototypical starburst galaxies. The templates 
+were derived using the \cite{silva1998} models. To obtain the 105 templates from the original four, \cite{dalehelou2001} 
+interpolated between the galaxies for a more diverse set.
+
+The 64 \cite{dalehelou2002} templates are updated versions of the original templates in \cite{dalehelou2001}. These 
+templates involved three components, large dust grains in thermal equilibrium, small grains semistochastically heated, and stochastically 
+heated polycyclic aromatic hydrocarbons. The models are based on IRAS/ISO observations of 69 normal star-forming galaxies at a range 
+of 3--100$\mu$m (\cite{rivera2016}). To obtain the 64 templates, the original models are improved upon with longer 
+wavelength observations (\citealp{dalehelou2002}). The single starburst template used in our analysis is shown in Fig.~\ref{fig:comps}. 
+
+\subsection{Host galaxy component}
+\label{sec:galaxy}
+
+The radiation from the host galaxy comes from starlight, although this is often overpowered by the luminosity of 
+the quasar.
+
+The host galaxy component is from \cite{fioc1997} who introduce their spectral evolution model of galaxies, PEGASE. 
+The component shown in Fig.~\ref{fig:comps} is composed of a 13 Gyr single-burst galaxy population constructed with 
+the PEGASE models.
+
+\subsection{SMC reddening parameter}
+\label{sec:smc}
+
+To correct for reddening within the host galaxy, we use a reddening model based on empirical analysis of the Small Magellanic Cloud 
+(\citealp{prevot1984}). The reddening correction is applied to the sum of all three components by the following equation:
+
+\begin{equation}
+  \label{eq:red}
+  F_{\lambda,\mathrm{obs}} = F_{\lambda,\mathrm{int}} \times 10^{-0.4A_{\lambda}},
+\end{equation}
+
+where $F_{\lambda,\mathrm{int}}$ is the flux prior to the correction and $A_{\lambda}$ contains the correction. 
+
+Reddening affects the shorter wavelength region of the spectrum more than the longer wavelength region, thus implementing 
+the reddening correction does not affect the fit near the starburst component very much. However, constraining the outflow 
+strength is accomplished through fitting the visible spectra of these objects, many of which are very reddened and require 
+more accurate reddening values. 
+
+\section{MCMC Fitting}
+\label{sec:fitting}
+
+For our purposes in fitting the SEDs, we have a 4-dimensional parameter space corresponding to the parameters discussed in \S~\ref{sec:models}. 
+Therefore we find it useful to fit these objects with a Markov Chain Monte Carlo algorithm as opposed to altering the parameters individually 
+and attempting to minimize the error between the data and the model fit. 
+
+\subsection{MCMC algorithm}
+\label{sec:mcmc}
+
+MCMC is a Bayesian approach to fitting with a posterior probability given as
+
+\begin{equation}
+  \label{eq:linearfunc}
+  P(B|A) \sim P(A|B)P(B),
+\end{equation} 
+
+where $P(B|A)$ is the posterior probability, $P(A|B)$ is the likelihood, and $P(B)$ is the prior.  
+ 
+A simple MCMC algorithm, such as Metropolis-Hastings,  will start at a random position in parameter space and evaluate the likelihood at 
+that position. It will then choose a new position based on a transition probability and evaluate the likelihood at the new position. 
+If the new-position likelihood indicates that this position in parameter space will result in a better fit, the new position 
+is accepted. If the new  position appears to be a worse fit, there is still some probability that the new position is accepted 
+anyway in order to evenly sample parameter space as well as to avoid clustering in local minima. This process is repeated 
+iteratively until convergence is reached. The Monte Carlo part of the algorithm describes the repeated random sampling while 
+the Markov Chain part describes how the algorithm will fairly sample parameter space.
+
+\subsection{Emcee}
+\label{sec:emcee}
+
+A particular disadvantage of the Metropolis-Hastings method is that its transition probability is correlated with the shape of 
+parameter space. The algorithm requires that each new position is calculated from a transition function of fixed width, meaning that 
+a step in any dimension of parameter space is constrained by whichever dimension requires the smallest deviations from the initial 
+position. Therefore, if the algorithm were attempting to sample an ellipse, its step size could not exceed the appropriate step 
+size when sampling the semi-minor axis of parameter space. With smaller step sizes, sampling parameter space becomes more 
+computationally expensive. 
+
+Emcee Hammer is a pythonic implementation of an affine-invariant MCMC Ensemble sampler which solves the problem 
+described above (\citealp{foremanmackey2013}). The \texttt{emcee} algorithm employs an affine transition function 
+to draw the next step, implying that although the 
+function transforms, it will not change the posterior probability distribution, thus it is affine-invariant. The transition function has 
+the form 
+
+\begin{equation}
+  \label{eq:linearfunc}
+  y = Ax + b,
+\end{equation}
+
+which has the following property: 
+
+\begin{equation}
+  \label{eq:linearfuncpi}
+  \pi_{A,b}(y) = \pi_{A,b}(Ax+b) \propto \pi (x),
+\end{equation} 
+
+where $\pi$ corresponds to the posterior probability distribution.
+Therefore, with \texttt{emcee} we achieve a fair sample of parameter space and convergence much more quickly.
+
+The \texttt{emcee} algorithm initializes a set of walkers permitted to take steps within parameter space. The next step of an individual 
+walker is generated based on the positions of the other walkers. If the other walkers happen to be reaching convergence in a region of 
+parameter space, then an individual walker may make the decision to move toward the other walkers and converge as well. The walkers 
+then converge to a probability distribution for the particular fit parameter, resulting in a confidence region for that parameter. 
+
+\subsection{Running emcee}
+\label{sec:run}
+
+To set up our \texttt{emcee} we used $\chi^2$ for the log likelihood and a small region of parameter space around approximated good 
+parameters for the prior. We initialized 100 walkers and ran 500 simulations, choosing to remove the first 250 simulations as the 
+burn-in while the walkers sampled the space. We performed \texttt{emcee} fits on all 14 objects, shown and discussed 
+in \S~\ref{sec:results}. 
+
+\section{Results and Discussion}
+\label{sec:results}
+
+We calculated preliminary fits for all 16 objects to constrain the SED components as well as the SMC reddening parameter. The 
+resulting fits are shown in Figs.~\ref{fig:fit1} and \ref{fig:fit2}.
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{figs/1-change.png}
+  \caption{Fits of the first eight objects, corresponding to the objects listed in Tab.~\ref{tab:starlum}. Photometry is in black, 
+           photometry that was not used in the fit is shown as red circles, 
+           the host galaxy in blue, the quasar in orange, the starburst in green, and the final fit in red. The 99\% confidence 
+           region for the fit is shown in gray.} 
+           \label{fig:fit1}
+\end{figure*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\linewidth]{figs/2-change.png}
+  \caption{Fits of the last six objects, corresponding to the objects listed in Tab.~\ref{tab:starlum}. The details are the same as 
+           Fig.~\ref{fig:fit1}.} 
+           \label{fig:fit2}
+\end{figure*}
+
+
+\subsection{SED fits}
+\label{sec:fits}
+
+We used \texttt{emcee} to construct preliminary fits of the 16 SEDs. Each 
+chain converged relatively quickly, allowing for the extraction of the necessary fitting parameters. However, due to low quality data, 
+some objects were more difficult to fit, requiring more attention. 
+
+Most objects exhibited high or anomalous reddening in their SDSS spectra, greatly reducing the flux for the shorter wavelength 
+photometry. To account for this, we did not use \textit{ugr} photometry to constrain the fit for some objects, 
+varying which bands we excluded through 
+overlaying the SDSS filter curves onto the spectra and determining where the reddening and contaminating absorption lines were most severe. 
+This exclusion improved each fit, 
+especially for the objects with such harsh reddening that their short wavelength photometry dropped off by two orders of magnitude. 
+
+Some of the objects appeared to contain strong H-$\alpha$ lines, indicating a possible photometric contamination. Therefore 
+we removed J- and H- band photometry from some of these objects, depending on where the H-$\alpha$ lines fell in the observed frame. 
+We also removed the longest wavelength MIPS photometry for some objects as the \texttt{emcee} analysis could not evaluate the fit. 
+The reason for this is presently unclear, therefore more testing is necessary such that we can return to using this point given 
+that it constrains the star formation at longer wavelengths.
+
+Although these changes did improve the fits overall, some of the fits are still poorly constrained at shorter wavelengths, which 
+factors into the final calculation of the starburst luminosity. 
+
+\subsection{Calculating starburst luminosity}
+\label{sec:starlum}
+
+To compare our results to the results of \cite{farrah2012}, we calculated the luminosity of the starburst 
+component for each object. We integrated $F_{\lambda}$ over 1-1000 $\mu m$ in the rest frame to remain consistent 
+with Farrah's analysis. We then performed a simple conversion from integrated flux to integrated luminosity by multiplying 
+the flux by $4\pi D^2$. $D$, the luminosity distance, is calculated with Ned Wright's Javascript Cosmological Calculator, inputting the 
+appropriate redshift (\citealp{wright2006}). The resulting starburst luminosities are shown in Tab.~\ref{tab:starlum}.
+
+\begin{table}
+  \centering
+  \caption{Log luminosities of the starburst contributions to the SED of all objects.}
+  \label{tab:starlum}
+  \begin{tabular}{lcccr}
+    \hline \hline
+    Name & IR L of Starburst ($\log L_{\odot}$) \\
+    
+    \hline
+    SDSS J011117.34+142653.6 & $11.93^{+0.09}_{-1.0}$ \\
+    SDSS J030000.57+004828.0 & $11.12^{+0.1}_{-1.9}$ \\
+    SDSS J033810.84+005617.7 & $11.92^{+0.1}_{-1.3}$ \\
+    SDSS J100605.66+051349.0 & $12.41^{+0.2}_{-0.5}$ \\
+    SDSS J101927.36+022521.4 & $11.89^{+0.6}_{-0.1}$ \\
+    SDSS J112526.12+002901.3 & $11.62^{+0.3}_{-0.9}$ \\
+    SDSS J112828.31+011337.9 & $11.29^{+0.4}_{-0.6}$ \\
+    SDSS J112901.71+050617.0 & $12.46^{+0.05}_{-0.4}$ \\
+    SDSS J114556.26+110018.4 & $11.19^{+0.002}_{-0.9}$ \\
+    SDSS J115436.60+030006.3 & $12.19^{+0.03}_{-1.1}$ \\
+    SDSS J120627.62+002335.3 & $11.46^{+0.5}_{-0.6}$ \\
+    SDSS J123549.95+013252.6 & $12.43^{+0.03}_{-0.4}$ \\
+    SDSS J132401.53+032020.6 & $11.73^{+0.3}_{-0.9}$ \\
+    SDSS J210712.77+005439.4 & $11.86^{+0.2}_{-1.6}$ \\
+
+  \end{tabular}
+\end{table}
+
+We plotted the luminosities in \cite{farrah2012} against the luminosities we calculated to determine how 
+different our values are, shown in Fig.~\ref{fig:starlum}. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figs/starburst_lums.png}
+  \caption{Log of the integrated IR starburst luminosity from \cite{farrah2012} plotted against ours calculated with \texttt{emcee}. 
+           The dashed blue line is a one-to-one line, and the triangular caps on some error bars represent upper limits.}
+           \label{fig:starlum}
+\end{figure}
+
+Preliminary interpretations suggest that many of our objects can be adequately fit with starburst components that 
+have lower amplitudes. This raises the question of whether or not the quasar and starburst components are covariant. 
+Fig.~\ref{fig:lyuvsfarrah_torus} shows an overlay of the quasar component used to fit SDSS J100605.66+051349.0 in \cite{farrah2012} 
+and the component fit to the same object in our \texttt{emcee} analysis. The key difference between these two components is that 
+the Farrah component begins to drop off at a shorter wavelength than the Lyu component. Given that this is a logarithmic plot, 
+the difference between the luminosities of the two components is therefore quite large. As is clear from Fig.~\ref{fig:comps}, 
+the starburst and quasar components cover the same long wavelength region, therefore they may be covariant. 
+Fig.~\ref{fig:lyuvsfarrah_starburst} shows the starburst component used to fit the same object in \cite{farrah2012} overlayed 
+with the starburst component from \cite{dalehelou2002} used in our \texttt{emcee} analysis, as well as the photometry for 
+SDSS J100605.66+051349.0. 
+
+When comparing these two figures, we see that the Farrah starburst component compensates for 
+the low amplitude of the quasar component at longer wavelengths, such that the fit constrains the 160 $\mu$m MIPS 
+photometry. However, our \texttt{emcee} results show that through using the \cite{lyu2017feb} model, the MIPS 
+photometry can be constrained by a lower amplitude starburst component. This leads us to suggest that the SED fit 
+is model dependent, resulting in varying starburst luminosity calculations depending on which models are used, especially 
+the quasar model. Therefore \cite{farrah2012} calculates overall higher starburst luminosities than our results 
+find, which can be seen in several objects, and explains the tendency for the data in Fig.~\ref{fig:starlum} to 
+lie below the one-to-one line.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lyu_vs_farrah_torus.png}
+  \caption{Overlay of \cite{farrah2012} quasar component and, in blue, and \cite{lyu2017feb} quasar component, in orange. 
+           Amplitude of the Lyu component is calculated with our \texttt{emcee} analysis, while the Farrah component 
+           comes from a library of quasar models. Components correspond to the fit of SDSS J100605.66+051349.0}
+           \label{fig:lyuvsfarrah_torus}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{figs/lyu_vs_farrah_starburst.png}
+  \caption{Overlay of \cite{farrah2012} starburst component and, in blue, and \cite{dalehelou2002} starburst component, in orange. 
+           Amplitude of the Dale and Helou component is calculated with our \texttt{emcee} analysis, while the Farrah component 
+           comes from a library of starburst models. SDSS J100605.66+051349.0 photometry and errors in black.}
+           \label{fig:lyuvsfarrah_starburst}
+\end{figure}
+
+\subsection{Interpretation and additional steps}
+\label{sec:interp}
+
+The goal of this project is to constrain the reddening and starburst components of several quasar SEDs in an effort to determine 
+whether or not a correlation between star formation and high-velocity outflow exists. At this point, we have calculated the SMC 
+reddening parameter and the starburst contribution to the IR luminosity for 16 objects. 
+
+Some objects were more difficult to fit than others, as can be seen in Figs.~\ref{fig:fit1} and \ref{fig:fit2}. This was likely a 
+result of low quality 
+and severely reddened data, manifesting especially in the shorter wavelength regime. Given that the starburst component 
+modeled the longer wavelength regime, this component was not particularly challenging to constrain. Therefore the preliminary 
+interpretations of these fits are likely not as problematic as the reddening calculations. However, the quasar component 
+does cover the entire wavelength range, thus any challenges in constraining the fit toward shorter wavelengths most 
+likely continue into the long wavelength regime. While this would lead us to worry that there may be covariance between 
+our quasar and starburst components, as discussed in \S~\ref{sec:starlum}, we can tentatively conclude that our models 
+exhibit little to no covariance. Regardless, an important next step would be to focus more closely on these poorly constrained 
+fits and investigate the source.
+  
+We also plan to reduce the additional photometry mentioned in \S~\ref{sec:data} to augment our current sample. Once we do 
+this we can model all 25 objects in our sample, allowing us to more efficiently constrain a possible relation between 
+outflow strength and star formation. 
+
+To investigate whether \cite{farrah2012} is correct in claiming that outflow strength and the star formation contribution to the IR 
+luminosity are anticorrelated, we need to compare the results from this paper with our separate calculations of outflow strength 
+through fitting the SDSS spectra (Leighly et al. in prep). Once all problems are taken care of with this analysis and all 25 objects have been 
+analyzed, we will determine if any relation exists.
+
+\section{CONCLUSIONS}
+\label{sec:conclusions}
+
+ We have made progress in fitting the spectral energy distribution of SDSS J084044.41+363327.8, with more objects to come. In the future 
+ we plan to obtain additional photometry and incorporate the data into our objects to yield a more precise constraint on the star 
+ formation and reddening parameter. At this point, \texttt{emcee} is proving to be a useful tool for fitting the SEDs as it exhibits 
+ fast and strong convergence despite the flaws in the model. It has shown to perform well near longer wavelengths where our model is 
+ more accurate, therefore we believe it will continue to be useful as we improve our model into the future.
+
+\section{ACKNOWLEDGMENTS}
+\label{sec:acknowledgments}
+
+A portion of this research was funded by NSF Astronomy and Astrophysics Grant \#1518382.
+
+\newpage
+\bibliography{paper}
+
+\end{document}
