@@ -17,6 +17,7 @@ Dev team plans for JupyterLab to eventually replace Jupyter Notebook
     * Edit python script and test bits of it interactively in a console
 * Terminal
     * Can run anything in system shell with terminal, like `vim`, `top`, etc.
+* Notebooks are the same, but with some more neat features
 
 ### [Extensions](https://jupyterlab.readthedocs.io/en/stable/user/extensions.html)
 
@@ -34,15 +35,15 @@ Extensions are npm packages, many built or in development on GitHub. Lots of roo
 
 [Live LaTeX editing](https://github.com/jupyterlab/jupyterlab-latex)
 
-[Google Drive](https://github.com/jupyterlab/jupyterlab-google-drive)
-* Real-time collaborative editing
-
 [Git](https://github.com/jupyterlab/jupyterlab-git)
 * Easily see status of git files and stage/track/commit
 * **Note**: Currently does not allow you to push changes to GitHub unless you have connected an SSH key to your account.
 
 [GitHub](https://github.com/jupyterlab/jupyterlab-github)
 * Browse repos and open files/notebooks
+
+[Google Drive](https://github.com/jupyterlab/jupyterlab-google-drive)
+* Real-time collaborative editing
 
 [JupyterHub](https://jupyterlab.readthedocs.io/en/stable/user/jupyterhub.html)
 
@@ -57,4 +58,4 @@ Note: Need [Node.js](https://nodejs.org/en/) to install extensions
 
 * `jupyter labextension install @jupyterlab/toc`
 
-### [Go read the docs!](https://jupyterlab.readthedocs.io/en/stable/)
+### [Go read the docs](https://jupyterlab.readthedocs.io/en/stable/) and happy hacking :-)
