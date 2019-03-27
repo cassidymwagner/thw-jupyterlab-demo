@@ -53,6 +53,8 @@ Extensions are npm packages, many built or in development on GitHub. Lots of roo
 Note: Need [Node.js](https://nodejs.org/en/) to install extensions
 * `conda install -c conda-forge nodejs`
 
-**Installing table of contents extension**
+**Installing [table of contents extension](https://github.com/jupyterlab/jupyterlab-toc)**
 
-`jupyter labextension install @jupyterlab/toc`
+* `jupyter labextension install @jupyterlab/toc`
+
+### [Go read the docs!](https://jupyterlab.readthedocs.io/en/stable/)
